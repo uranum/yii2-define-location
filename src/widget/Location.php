@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User:    Евегний Емельянов <emel.yanov@mail.ru>
- * Date:    02.12.16
- * Time:    14:31
- * Project: inknsk.dev
- */
 
-namespace frontend\modules\location\widget;
+namespace uranum\location\widget;
 
 
-use frontend\modules\location\models\UserIp;
+use uranum\location\models\UserIp;
+use uranum\location\Module;
 use Yii;
 use yii\base\Widget;
 use yii\helpers\Html;
@@ -43,22 +37,22 @@ class Location extends Widget
 		parent::init();
 		
 		$session = Yii::$app->session;
-		$city    = $session->get('userCity');
+		$city    = $session->get(Module::USER_CITY);
 		
-		if ($session->has('userCity')) {
+		if ($session->has(Module::USER_CITY)) {
 			$this->city = $city;
 		} elseif (empty($city) && Yii::$app->user->isGuest) {
 			if (empty($this->city)) {
 				$this->city = Yii::t('location', 'Выбрать');
 			}
-			$session->set('userCity', $this->city);
+			$session->set(Module::USER_CITY, $this->city);
 		} elseif (empty($city) && !Yii::$app->user->isGuest) {
 			$location = UserIp::findOne(['user_id' => Yii::$app->user->id]);
 			if ($location) {
-				$session->set('userCity', $location->location);
+				$session->set(Module::USER_CITY, $location->location);
 				$this->city = $location->location;
 			} else {
-				$session->set('userCity', $this->city);
+				$session->set(Module::USER_CITY, $this->city);
 			}
 		}
 		

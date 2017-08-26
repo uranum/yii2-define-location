@@ -20,13 +20,12 @@
     "source": "https://github.com/uranum/yii2-define-location"
   },
   "require": {
-    "php": "~5.6",
     "yiisoft/yii2": "~2.0",
     "himiklab/yii2-ipgeobase-component": "1.0.2"
   },
   "autoload": {
     "psr-4": {
-      "uranum\\location\\": "src/",
+      "uranum\\location\\": "src",
       "uranum\\location\\migrations\\": "migrations"
     }
   },

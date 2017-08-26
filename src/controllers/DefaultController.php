@@ -1,8 +1,9 @@
 <?php
 
-namespace frontend\modules\location\controllers;
+namespace uranum\location\controllers;
 
-use frontend\modules\location\models\UserIp;
+use uranum\location\models\UserIp;
+use uranum\location\Module;
 use Yii;
 use yii\helpers\Html;
 use yii\web\Controller;
@@ -23,7 +24,7 @@ class DefaultController extends Controller
 				$model->save();
 			}
 			if (!empty($city)) {
-				$session->set('userCity', $city);
+				$session->set(Module::USER_CITY, $city);
 			}
 			echo 'good';
 		}

@@ -1,7 +1,8 @@
 <?php
 
-namespace frontend\modules\location\models;
+namespace uranum\location\models;
 
+use uranum\location\Module;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveRecord;
@@ -21,7 +22,10 @@ class UserIp extends ActiveRecord
 	public function init()
 	{
 		parent::init();
-		$this->_userClass = Yii::$app->getModule('location')->userModelClass;
+        $instance = Module::getInstance();
+        /** @var Module $module */
+        $module = Yii::$app->getModule($instance->id);
+		$this->_userClass = $module->userModelClass;
 	}
 	
 	public function behaviors()
@@ -49,7 +53,7 @@ class UserIp extends ActiveRecord
 	 */
 	public static function tableName()
 	{
-		return '{{%userIp}}';
+		return Module::TABLE_NAME;
 	}
 	
 	/**

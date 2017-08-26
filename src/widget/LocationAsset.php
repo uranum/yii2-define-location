@@ -7,14 +7,14 @@
  * Project: inknsk.dev
  */
 
-namespace frontend\modules\location\widget;
+namespace uranum\location\widget;
 
 
 use yii\web\AssetBundle;
 
 class LocationAsset extends AssetBundle
 {
-	public $sourcePath = '@frontend/modules/location/widget/assets/';
+	public $sourcePath = '@uranum/location/widget/assets/';
 	public $css = [
 	    'css/styles.css'
 	];
@@ -24,5 +24,7 @@ class LocationAsset extends AssetBundle
 	public $depends = [
 		'yii\web\JqueryAsset',
 		'yii\jui\JuiAsset',
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapPluginAsset'
 	];
 }

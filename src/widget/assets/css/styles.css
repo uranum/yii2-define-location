@@ -14,7 +14,7 @@
 .ur-location-choose-wrap {
     display: none;
     position: fixed;
-    top: 0;
+    top: 60px;
     left:0;
     z-index: 1005;
     width: 100%;

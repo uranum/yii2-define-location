@@ -1,38 +1,16 @@
 <?php
 
-namespace frontend\modules\location;
+namespace uranum\location;
 
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\web\User;
 
+
 /**
  * location module definition class
- 
- * Модуль сделан относительно независимым.
-  
- * Для его внедрения в проект достаточно скопировать папку с модулем
- * в свой frontend/modules;
- * применить миграцию:
  *
- * ```
- * php yii migrate --migrationPath=@frontend/modules/location/migrations
- * ```
- * прописать в конфиге:
- * ```php
- * bootstrap' => [
- *       ....,
- *       'location'
- *   ],
- * ....
- * 'modules' => [
- *      'location' => [
- *  	    'class'               => 'frontend\modules\location\Module',
- *	        'userModelClass'      => 'frontend\modules\user\models\User',
- *	        'controllerNamespace' => 'frontend\modules\location\controllers',
- *	    ],
- * ]
  * ```
  * разместить код виджета:
  * ```php
@@ -56,6 +34,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
 	 * @property string Class name of the linked User model
 	 */
 	public $userModelClass;
+	public $userTableName;
+    public $controllerNamespace = 'uranum\location\controllers';
+    const TABLE_NAME = '{{%userIp}}';
+    const USER_CITY = 'userCity';
 
     /**
      * @inheritdoc
@@ -63,6 +45,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function init()
     {
         parent::init();
+        $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
     }
 	
 	/**
@@ -71,8 +54,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
 	 */
 	public function bootstrap($app)
 	{
-		$app->user->on(User::EVENT_AFTER_LOGIN, function ($event) {
-			Yii::$app->session->remove('userCity');
-		});
+        if ($app instanceof \yii\web\Application) {
+            $app->user->on(User::EVENT_AFTER_LOGIN, function ($event) {
+                Yii::$app->session->remove(self::USER_CITY);
+            });
+        }
 	}
 }
