@@ -1,0 +1,42 @@
+{
+  "name": "uranum/yii2-define-location",
+  "description": "Define the user location by ip or set it manually. For Yii2 app.",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "location",
+    "ip",
+    "yii 2"
+  ],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Eugeny Emelyanov",
+      "email": "e9139905539@gmail.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/uranum/yii2-define-location/issues?state=open",
+    "source": "https://github.com/uranum/yii2-define-location"
+  },
+  "require": {
+    "php": "~5.6",
+    "yiisoft/yii2": "~2.0",
+    "himiklab/yii2-ipgeobase-component": "1.0.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "uranum\\location\\": "src/",
+      "uranum\\location\\migrations\\": "migrations"
+    }
+  },
+  "config": {
+    "process-timeout": 1800,
+    "fxp-asset": {
+      "installer-paths": {
+        "npm-asset-library": "vendor/npm",
+        "bower-asset-library": "vendor/bower"
+      }
+    }
+  }
+}
