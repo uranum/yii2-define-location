@@ -31,9 +31,20 @@ class Location extends Widget
     public $cssLocationLink = 'ur-location-link';
     public $sendUrl;
     public $city;
+    public $predefinedCities = self::CITIES_SET;
     public $cssPredefinedCities = 'ur-predefined-block';
 	/** @var Session $session */
 	private $session;
+
+    const CITIES_SET = [
+        'Москва',
+        'Санкт-Петербург',
+        'Новосибирск',
+        'Бердск',
+        'Барнаул',
+        'Томск'
+    ];
+
 
 	public function init()
 	{
@@ -165,13 +176,10 @@ class Location extends Widget
 
     private function renderPredefinedCities()
 	{
-		$li = [//todo[cors] создать настройку предустановленных городов  --- 27.08.2017
-			Html::a('Новосибирск', false, ['class' => 'ur-pred-city-li']),
-			Html::a('Бердск', false, ['class' => 'ur-pred-city-li']),
-			Html::a('Томск', false, ['class' => 'ur-pred-city-li']),
-			Html::a('Барнаул', false, ['class' => 'ur-pred-city-li']),
-			Html::a('Москва', false, ['class' => 'ur-pred-city-li']),
-		];
+        $li = [];
+        foreach ($this->predefinedCities as $city) {
+            $li[] = Html::a($city, false, ['class' => 'ur-pred-city-li']);
+	    }
 		$ul = Html::ul($li, ['class' => 'inline-list', 'encode' => false]);
 		$html = Html::tag('div', $ul, ['class' => 'small-12']);
 		$predefined   = Html::tag('div', $html, ['class' => $this->cssPredefinedCities]);
