@@ -20,6 +20,7 @@
     "source": "https://github.com/uranum/yii2-define-location"
   },
   "require": {
+    "php": ">=7.0.0",
     "yiisoft/yii2": "~2.0",
     "himiklab/yii2-ipgeobase-component": "1.0.2"
   },

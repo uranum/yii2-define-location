@@ -40,24 +40,39 @@ class Module extends \yii\base\Module implements BootstrapInterface
     const USER_CITY = 'userCity';
 
     /**
-     * @inheritdoc
+     * Bootstrap method to be called during application bootstrap stage.
+     * @param Application $app the application currently running
      */
-    public function init()
+    public function bootstrap($app)
     {
-        parent::init();
-        $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
-    }
-	
-	/**
-	 * Bootstrap method to be called during application bootstrap stage.
-	 * @param Application $app the application currently running
-	 */
-	public function bootstrap($app)
-	{
         if ($app instanceof \yii\web\Application) {
             $app->user->on(User::EVENT_AFTER_LOGIN, function ($event) {
                 Yii::$app->session->remove(self::USER_CITY);
             });
         }
-	}
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->registerTranslations();
+        $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
+    }
+
+    public function registerTranslations()
+    {
+        \Yii::$app->i18n->translations['location'] = [
+            'class'          => 'yii\i18n\PhpMessageSource',
+            'sourceLanguage' => 'ru-RU',
+            'basePath'       => '@vendor/uranum/yii2-define-location/src/messages',
+        ];
+    }
+
+    public static function t($category, $message, $params = [], $language = null)
+    {
+        return \Yii::t($category, $message, $params, $language);
+    }
 }

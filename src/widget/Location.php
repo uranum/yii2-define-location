@@ -6,11 +6,13 @@ namespace uranum\location\widget;
 use uranum\location\models\UserIp;
 use uranum\location\Module;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\base\Widget;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\jui\AutoComplete;
 use yii\web\JsExpression;
+use yii\web\Session;
 
 class Location extends Widget
 {
@@ -26,57 +28,101 @@ class Location extends Widget
 	public $cssChooseBlock = 'ur-location-choose-block';
 	public $cssCloseFigureClass = 'fa fa-close fa-2x';
 	public $header = 'Выберите Ваше местоположение';
-	public $cssLocationMarker = 'fa fa-map-marker';
-	public $cssLocationLink = 'ur-location-link';
-	public $sendUrl;
-	public $city;
-	public $cssPredefinedCities = 'ur-predefined-block';
-	
+    public $chooseTitle = 'Выбрать';
+    public $cssLocationMarker = 'fa fa-map-marker';
+    public $cssLocationLink = 'ur-location-link';
+    public $sendUrl;
+    public $city;
+    public $cssPredefinedCities = 'ur-predefined-block';
+    /** @var \himiklab\ipgeobase\IpGeoBase */
+	public $ipGeoComponent;
+	/** @var Session $session */
+	private $session;
+
 	public function init()
 	{
 		parent::init();
-		
-		$session = Yii::$app->session;
-		$city    = $session->get(Module::USER_CITY);
-		
-		if ($session->has(Module::USER_CITY)) {
-			$this->city = $city;
-		} elseif (empty($city) && Yii::$app->user->isGuest) {
-			if (empty($this->city)) {
-				$this->city = Yii::t('location', 'Выбрать');
-			}
-			$session->set(Module::USER_CITY, $this->city);
-		} elseif (empty($city) && !Yii::$app->user->isGuest) {
-			$location = UserIp::findOne(['user_id' => Yii::$app->user->id]);
-			if ($location) {
-				$session->set(Module::USER_CITY, $location->location);
-				$this->city = $location->location;
-			} else {
-				$session->set(Module::USER_CITY, $this->city);
-			}
-		}
+        $this->session = Yii::$app->session;
+        $this->checkIpGeoComponent();
+        $this->setCity();
+
+        //todo[cors] должно отрабатывать запись местоположения на событие регистрации  --- 27.08.2017
+//todo[cors] должно отрабатывать запись местоположения на событие логин при том, что у юзера нет в базе местоположения   --- 27.08.2017
+        /**
+         * изначально в свойство $this->city надо записать данные ipgeobase
+         *
+         * 1) города нет в сессии, в базе :: есть в гео  -- выводим гео  (первый заход на сайт, повторный заход без логина)
+         * 2) города нет в сессии :: есть в базе, есть в гео  -- выводим базу  (повторный заход без логина)
+         * 3) города нет в базе :: есть в сессии, есть в гео  -- выводим сессию  (текущая сессия незарегистрированного/незалогененного юзера)
+         *
+         * События:
+         * 1) первый заход на сайт  -- города нет в сессии, в базе :: есть в гео (1)
+         * 2) повторный заход с городом в базе, но без логина  -- города нет в сессии :: есть в гео, в базе (2)
+         * 3) повторный заход без города в базе и без логина  -- города нет в сессии, в базе, :: есть есть в гео ()
+         * 4) текущая сессия с внесенным городом в сессию без логина  --
+         *
+         * если(город уже в сессии)
+         *      то в свойство записать данные сессии
+         * если(Города нет в сессии и юзер не залоген)
+         *      то в свойство записать 'Выбрать'
+         * если(Города нет в сессии и юзер залоген)
+         *      то найти его местоположение в базе
+         *      если(местоположение есть)
+         *          то в свойство и сессию записать найденное
+         *      иначе
+         *          в сессию записать свойство
+         */
+
+
+
+
+
+//		elseif (empty($cityFromSession) && Yii::$app->user->isGuest) {
+//			if (empty($this->city)) {
+//				$this->city = Yii::t('location', 'Выбрать');
+//			}
+//			$this->session->set(Module::USER_CITY, $this->city);
+//		} elseif (empty($cityFromSession) && !Yii::$app->user->isGuest) {
+//			$location = UserIp::findOne(['user_id' => Yii::$app->user->id]);
+//			if ($location) {
+//				$this->session->set(Module::USER_CITY, $location->location);
+//				$this->city = $location->location;
+//			} else {
+//				$this->session->set(Module::USER_CITY, $this->city);
+//			}
+//		}
 		
 		$this->sendUrl = Url::to(['/location/default/send-city']);
-		$this->registerTranslations();
 		LocationAsset::register($this->getView());
 	}
-	
-	private function registerTranslations()
-	{
-		Yii::$app->i18n->translations['location'] = [
-			'class'          => 'yii\i18n\PhpMessageSource',
-			'sourceLanguage' => 'ru-RU',
-			'basePath'       => dirname(__DIR__) . '/messages',
-		];
-	}
-	
-	public function run()
+
+    private function setCity()
+    {
+        if ($this->isCityInSession()) {
+        $this->city = $this->session->get(Module::USER_CITY);
+    } else {
+            $this->city = $this->getCityFromGeo();
+        }
+    }
+
+    private function getCityFromGeo()
+    {
+        $result = $this->ipGeoComponent->getLocation(Yii::$app->request->userIP);
+        return (empty($result['city'])) ? $this->chooseTitle : $result['city'];
+    }
+
+    private function isCityInSession()
+    {
+        return $this->session->has(Module::USER_CITY);
+    }
+
+    public function run()
 	{
 		$this->renderLocation();
 		$this->renderChooseBlock();
 	}
-	
-	/**
+
+    /**
 	 * Render the stroke with the city name
 	 */
 	private function renderLocation()
@@ -86,8 +132,8 @@ class Location extends Widget
 		$html .= Html::tag('span', Html::encode($this->city), ['class' => $this->cssLocationLink, 'id' => 'ur-city-link']);
 		echo $html;
 	}
-	
-	/**
+
+    /**
 	 * Render the block with the region's names
 	 * and autocomplete field
 	 */
@@ -100,8 +146,8 @@ class Location extends Widget
 		$block .= $this->renderPredefinedCities();
 		echo Html::tag('div', $block, ['class' => $this->cssChooseBlockWrapper, 'id' => 'ur-choose-block']);
 	}
-	
-	/**
+
+    /**
 	 * Return the content of the choose block
 	 */
 	private function renderContentChooseBlock()
@@ -110,23 +156,23 @@ class Location extends Widget
 		$autocomplete = Html::tag('div', $this->renderAutocomplete(), ['class' => $this->cssChooseBlockContentAutoComplete]);
 		$locations    = Html::tag('div', $this->renderSubmitButton(), ['class' => $this->cssChooseBlockContentButton]);
 		$html         = $header . $autocomplete . $locations;
-		
+
 		return Html::tag('div', $html, ['class' => $this->cssChooseBlockContentWrapper]);
 	}
-	
-	private function renderCloseBlockButton()
+
+    private function renderCloseBlockButton()
 	{
 		$html = Html::tag('i', '', ['class' => $this->cssCloseFigureClass, 'id' => 'ur-close-button']);
-		
+
 		return Html::tag('div', $html, ['class' => $this->cssCloseBlockButton]);
 	}
-	
-	private function renderChooseHeader()
+
+    private function renderChooseHeader()
 	{
 		return Html::tag('span', Yii::t('location', $this->header));
 	}
-	
-	private function renderAutocomplete()
+
+    private function renderAutocomplete()
 	{
 		return AutoComplete::widget([
 			'name'          => 'city',
@@ -166,15 +212,15 @@ class Location extends Widget
 			],
 		]);
 	}
-	
-	private function renderSubmitButton()
+
+    private function renderSubmitButton()
 	{
 		return Html::button('Ok', ['id' => 'ur-submit-button', 'class' => $this->cssSubmitButton . ' disabled', 'onclick' => 'sendCity("' . $this->sendUrl . '")']);
 	}
-	
-	private function renderPredefinedCities()
+
+    private function renderPredefinedCities()
 	{
-		$li = [
+		$li = [//todo[cors] создать настройку предустановленных городов  --- 27.08.2017
 			Html::a('Новосибирск', false, ['class' => 'ur-pred-city-li']),
 			Html::a('Бердск', false, ['class' => 'ur-pred-city-li']),
 			Html::a('Томск', false, ['class' => 'ur-pred-city-li']),
@@ -186,4 +232,11 @@ class Location extends Widget
 		$predefined   = Html::tag('div', $html, ['class' => $this->cssPredefinedCities]);
 		return $predefined;
 	}
+
+    private function checkIpGeoComponent()
+    {
+        if (!$this->ipGeoComponent instanceof \himiklab\ipgeobase\IpGeoBase) {
+            throw new InvalidConfigException('Property ipGeoComponent must be instance of himiklab\ipgeobase\IpGeoBase');
+        }
+    }
 }

@@ -16,6 +16,9 @@ composer require uranum/yii2-define-location:"dev-master"
     ],
 ]
 ```
+Для автоматического определения местоположения настройте компонент [Yii2 IpGeoBase.ru wrapper](https://github.com/himiklab/yii2-ipgeobase-component)
+(инструкции по [ссылке](https://github.com/himiklab/yii2-ipgeobase-component#Установка), установка компонента не требуется, только
+указание компонента в конфигурации).
 
 Указать в конфигурации, что модуль должен быть предзагружен:
 ```php
@@ -27,4 +30,11 @@ bootstrap' => [
 Применить миграцию:
 ```php
 php yii migrate --migrationPath=@uranum/location/migrations
+```
+
+Вывести виджет в нужном месте:
+```php
+echo  \uranum\location\widget\Location::widget([
+        'ipGeoComponent' => Yii::$app->ipgeo, // здесь ipgeo - название компонента himiklab\ipgeobase\IpGeoBase, указанного в секции components в config
+    ]);
 ```
