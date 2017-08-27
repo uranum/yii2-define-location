@@ -3,7 +3,6 @@
 namespace uranum\location\widget;
 
 
-use uranum\location\models\UserIp;
 use uranum\location\Module;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -34,10 +33,10 @@ class Location extends Widget
     public $sendUrl;
     public $city;
     public $cssPredefinedCities = 'ur-predefined-block';
-    /** @var \himiklab\ipgeobase\IpGeoBase */
-	public $ipGeoComponent;
 	/** @var Session $session */
 	private $session;
+	/** @var  $module Module */
+	private $module;
 
 	public function init()
 	{
@@ -99,16 +98,16 @@ class Location extends Widget
     private function setCity()
     {
         if ($this->isCityInSession()) {
-        $this->city = $this->session->get(Module::USER_CITY);
-    } else {
+            $this->city = $this->session->get(Module::USER_CITY);
+        } else {
             $this->city = $this->getCityFromGeo();
         }
     }
 
     private function getCityFromGeo()
     {
-        $result = $this->ipGeoComponent->getLocation(Yii::$app->request->userIP);
-        return (empty($result['city'])) ? $this->chooseTitle : $result['city'];
+        $result = $this->module->ipGeoComponent->getLocation(Yii::$app->request->userIP);
+        return ($result['city']) ?? $this->chooseTitle;
     }
 
     private function isCityInSession()

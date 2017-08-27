@@ -2,6 +2,7 @@
 
 namespace uranum\location;
 
+use uranum\location\components\LocationSetter;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
@@ -36,6 +37,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
 	public $userModelClass;
 	public $userTableName;
     public $controllerNamespace = 'uranum\location\controllers';
+    /** @var \himiklab\ipgeobase\IpGeoBase */
+    public $ipGeoComponent;
     const TABLE_NAME = '{{%userIp}}';
     const USER_CITY = 'userCity';
 
@@ -46,9 +49,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function bootstrap($app)
     {
         if ($app instanceof \yii\web\Application) {
-            $app->user->on(User::EVENT_AFTER_LOGIN, function ($event) {
-                Yii::$app->session->remove(self::USER_CITY);
-            });
+            $app->user->on(User::EVENT_AFTER_LOGIN, [LocationSetter::className(), 'handleLoginEvent']);
         }
     }
 
@@ -59,7 +60,20 @@ class Module extends \yii\base\Module implements BootstrapInterface
     {
         parent::init();
         $this->registerTranslations();
+        $this->initIpGeo();
         $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
+
+    }
+
+    private function initIpGeo()
+    {
+        $components = Yii::$app->getComponents();
+        foreach ($components as $name => $component) {
+            if ($component['class'] == 'himiklab\ipgeobase\IpGeoBase') {
+                $this->ipGeoComponent = Yii::$app->get($name);
+                break;
+            }
+        }
     }
 
     public function registerTranslations()

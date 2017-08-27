@@ -12,8 +12,15 @@ class DefaultController extends Controller
 {
 	public function actionSendCity()
 	{
-		$city    = Yii::$app->request->post('city');
+		$city    = Yii::$app->request->getBodyParam('city');
 		$session = Yii::$app->session;
+
+        /**
+         * основное действие:
+         *  запись города в базу для логгед юзера
+         *  запись города в сессию
+         * при успешной записи выбранного города в базу
+         */
 		
 		if (Yii::$app->request->isAjax) {
 			if (!Yii::$app->user->isGuest) {

@@ -32,7 +32,7 @@ function sendCity(url) {
                 city: city.value
             },
             success : function(data) {
-                if(data == 'good') {
+                if(data === 'good') {
                     $('#ur-city-link').html(city.value);
                     slideUpChooseBlock();
                 }

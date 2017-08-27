@@ -15,13 +15,19 @@
       "email": "e9139905539@gmail.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
   "support": {
     "issues": "https://github.com/uranum/yii2-define-location/issues?state=open",
     "source": "https://github.com/uranum/yii2-define-location"
   },
   "require": {
     "php": ">=7.0.0",
-    "yiisoft/yii2": "~2.0",
+    "yiisoft/yii2": "~2.0.11",
     "himiklab/yii2-ipgeobase-component": "1.0.2"
   },
   "autoload": {
@@ -31,12 +37,6 @@
     }
   },
   "config": {
-    "process-timeout": 1800,
-    "fxp-asset": {
-      "installer-paths": {
-        "npm-asset-library": "vendor/npm",
-        "bower-asset-library": "vendor/bower"
-      }
-    }
+    "process-timeout": 1800
   }
 }
