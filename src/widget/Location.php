@@ -5,7 +5,6 @@ namespace uranum\location\widget;
 
 use uranum\location\Module;
 use Yii;
-use yii\base\InvalidConfigException;
 use yii\base\Widget;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -35,78 +34,25 @@ class Location extends Widget
     public $cssPredefinedCities = 'ur-predefined-block';
 	/** @var Session $session */
 	private $session;
-	/** @var  $module Module */
-	private $module;
 
 	public function init()
 	{
 		parent::init();
         $this->session = Yii::$app->session;
-        $this->checkIpGeoComponent();
         $this->setCity();
-
-        //todo[cors] должно отрабатывать запись местоположения на событие регистрации  --- 27.08.2017
-//todo[cors] должно отрабатывать запись местоположения на событие логин при том, что у юзера нет в базе местоположения   --- 27.08.2017
-        /**
-         * изначально в свойство $this->city надо записать данные ipgeobase
-         *
-         * 1) города нет в сессии, в базе :: есть в гео  -- выводим гео  (первый заход на сайт, повторный заход без логина)
-         * 2) города нет в сессии :: есть в базе, есть в гео  -- выводим базу  (повторный заход без логина)
-         * 3) города нет в базе :: есть в сессии, есть в гео  -- выводим сессию  (текущая сессия незарегистрированного/незалогененного юзера)
-         *
-         * События:
-         * 1) первый заход на сайт  -- города нет в сессии, в базе :: есть в гео (1)
-         * 2) повторный заход с городом в базе, но без логина  -- города нет в сессии :: есть в гео, в базе (2)
-         * 3) повторный заход без города в базе и без логина  -- города нет в сессии, в базе, :: есть есть в гео ()
-         * 4) текущая сессия с внесенным городом в сессию без логина  --
-         *
-         * если(город уже в сессии)
-         *      то в свойство записать данные сессии
-         * если(Города нет в сессии и юзер не залоген)
-         *      то в свойство записать 'Выбрать'
-         * если(Города нет в сессии и юзер залоген)
-         *      то найти его местоположение в базе
-         *      если(местоположение есть)
-         *          то в свойство и сессию записать найденное
-         *      иначе
-         *          в сессию записать свойство
-         */
-
-
-
-
-
-//		elseif (empty($cityFromSession) && Yii::$app->user->isGuest) {
-//			if (empty($this->city)) {
-//				$this->city = Yii::t('location', 'Выбрать');
-//			}
-//			$this->session->set(Module::USER_CITY, $this->city);
-//		} elseif (empty($cityFromSession) && !Yii::$app->user->isGuest) {
-//			$location = UserIp::findOne(['user_id' => Yii::$app->user->id]);
-//			if ($location) {
-//				$this->session->set(Module::USER_CITY, $location->location);
-//				$this->city = $location->location;
-//			} else {
-//				$this->session->set(Module::USER_CITY, $this->city);
-//			}
-//		}
-		
 		$this->sendUrl = Url::to(['/location/default/send-city']);
 		LocationAsset::register($this->getView());
 	}
 
     private function setCity()
     {
-        if ($this->isCityInSession()) {
-            $this->city = $this->session->get(Module::USER_CITY);
-        } else {
-            $this->city = $this->getCityFromGeo();
-        }
+        $this->city = $this->isCityInSession() ? $this->session->get(Module::USER_CITY) : $this->getCityFromGeo();
     }
 
     private function getCityFromGeo()
     {
-        $result = $this->module->ipGeoComponent->getLocation(Yii::$app->request->userIP);
+        $module = Yii::$container->get('LocationModule');
+        $result = $module->ipGeoComponent->getLocation(Yii::$app->request->userIP);
         return ($result['city']) ?? $this->chooseTitle;
     }
 
@@ -231,11 +177,4 @@ class Location extends Widget
 		$predefined   = Html::tag('div', $html, ['class' => $this->cssPredefinedCities]);
 		return $predefined;
 	}
-
-    private function checkIpGeoComponent()
-    {
-        if (!$this->ipGeoComponent instanceof \himiklab\ipgeobase\IpGeoBase) {
-            throw new InvalidConfigException('Property ipGeoComponent must be instance of himiklab\ipgeobase\IpGeoBase');
-        }
-    }
 }

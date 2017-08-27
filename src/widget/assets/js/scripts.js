@@ -24,7 +24,7 @@ function slideUpChooseBlock() {
 
 function sendCity(url) {
     var city = document.getElementById('ur-city-auto');
-    if (city.value != '') {
+    if (city.value !== '') {
         $.ajax({
             url: url,
             type: 'post',
@@ -34,8 +34,10 @@ function sendCity(url) {
             success : function(data) {
                 if(data === 'good') {
                     $('#ur-city-link').html(city.value);
-                    slideUpChooseBlock();
+                } else {
+                    alert(data);
                 }
+                slideUpChooseBlock();
             }
         });
     }

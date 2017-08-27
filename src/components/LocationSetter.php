@@ -12,7 +12,7 @@ use uranum\location\Module;
 use Yii;
 use yii\base\Component;
 use yii\base\Event;
-use yii\helpers\VarDumper;
+use yii\helpers\ArrayHelper;
 use yii\web\Session;
 
 class LocationSetter extends Component
@@ -24,11 +24,10 @@ class LocationSetter extends Component
     private $session;
     private $module;
 
-    public function __construct(Module $module, Session $session, array $config = [])
+    public function __construct(Session $session, array $config = [])
     {
         parent::__construct($config);
         $this->session = \Yii::$app->session;
-        $this->module = $module;
     }
 
     /**
@@ -36,20 +35,33 @@ class LocationSetter extends Component
      */
     public function handleLoginEvent($event)
     {
-        // проверить базу и записать в сессию из базы
-        // оставить то, что в сессии
-        // записать в сессию из гео
-
-//        VarDumper::dump($event->sender,5, true);
-//        die();
-
-        $storage = $this->hasUserCityInStorage($event->sender->id);
-
-        if (null !== $storage) {
-            $this->session->set(Module::USER_CITY, $storage);
-        } else {
+        if(!$this->hasStoredCity($event->sender->id)) {
             $this->setUserCityFromGeo();
         }
+        $this->saveCity($this->session->get(Module::USER_CITY));
+    }
+
+    public function saveCity($city)
+    {
+        if (!Yii::$app->user->isGuest) {
+            /** @var UserIp $model */
+            $model = UserIp::create($city);
+            if (!$model->save()) {
+                throw new \RuntimeException(Yii::t('location', "Ошибка! Не удалось сохранить Ваш выбор!"));
+            }
+        }
+        $this->session->set(Module::USER_CITY, $city);
+    }
+
+    protected function hasStoredCity($userId): bool
+    {
+        $storage = $this->hasUserCityInStorage($userId);
+
+        if (null !== $storage) {
+            $this->session->set(Module::USER_CITY, $storage->location);
+            return true;
+        }
+        return false;
     }
 
     protected function hasUserCityInStorage($id)
@@ -59,8 +71,11 @@ class LocationSetter extends Component
 
     protected function setUserCityFromGeo()
     {
-        if (!$this->session->has(Module::USER_CITY)) {
-            $this->session->set(Module::USER_CITY, $this->module->ipGeoComponent->getLocation(Yii::$app->request->userIP));
+        $this->module = Yii::$container->get('LocationModule');
+        $result = $this->module->ipGeoComponent->getLocation(Yii::$app->request->userIP);
+        $city = ArrayHelper::getValue($result, 'city', 'Not set');
+        if (!$this->session->has(Module::USER_CITY) && !empty($city)) {
+            $this->session->set(Module::USER_CITY, $city);
         }
     }
 }

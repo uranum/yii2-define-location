@@ -27,6 +27,15 @@ class UserIp extends ActiveRecord
         $module = Yii::$app->getModule($instance->id);
 		$this->_userClass = $module->userModelClass;
 	}
+
+    public static function create($city)
+    {
+        if (!$model = static::findOne(['user_id' => Yii::$app->user->id])) {
+            $model = new static();
+        }
+        $model->location = $city;
+        return $model;
+	}
 	
 	public function behaviors()
 	{

@@ -20,11 +20,12 @@ composer require uranum/yii2-define-location:"dev-master"
 (инструкции по [ссылке](https://github.com/himiklab/yii2-ipgeobase-component#Установка), установка компонента не требуется, только
 указание компонента в конфигурации).
 
-Указать в конфигурации, что модуль должен быть предзагружен:
+Указать в конфигурации, в секции bootstrap следующие строки:
 ```php
 bootstrap' => [
     ....,
-    'location'
+    'location', 
+    'uranum\location\InitApp'
 ],
 ```
 Применить миграцию:

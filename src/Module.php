@@ -6,6 +6,7 @@ use uranum\location\components\LocationSetter;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
+use yii\base\Object;
 use yii\web\User;
 
 
@@ -29,7 +30,7 @@ use yii\web\User;
  * будет надпись "Выбрать"
  *
  */
-class Module extends \yii\base\Module implements BootstrapInterface
+class Module extends \yii\base\Module
 {
 	/**
 	 * @property string Class name of the linked User model
@@ -39,19 +40,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public $controllerNamespace = 'uranum\location\controllers';
     /** @var \himiklab\ipgeobase\IpGeoBase */
     public $ipGeoComponent;
+    private $locationSetter;
     const TABLE_NAME = '{{%userIp}}';
     const USER_CITY = 'userCity';
-
-    /**
-     * Bootstrap method to be called during application bootstrap stage.
-     * @param Application $app the application currently running
-     */
-    public function bootstrap($app)
-    {
-        if ($app instanceof \yii\web\Application) {
-            $app->user->on(User::EVENT_AFTER_LOGIN, [LocationSetter::className(), 'handleLoginEvent']);
-        }
-    }
 
     /**
      * @inheritdoc
@@ -61,6 +52,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
         parent::init();
         $this->registerTranslations();
         $this->initIpGeo();
+        $this->locationSetter = Yii::createObject(LocationSetter::className());
         $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
 
     }
@@ -73,6 +65,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
                 $this->ipGeoComponent = Yii::$app->get($name);
                 break;
             }
+        }
+
+        if (!$this->ipGeoComponent instanceof \himiklab\ipgeobase\IpGeoBase) {
+            throw new InvalidConfigException('It seems there is no installed "yii2-ipgeobase-component" component. Be sure the component is correctly installed and it is the instance of himiklab\ipgeobase\IpGeoBase');
         }
     }
 
