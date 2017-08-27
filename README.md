@@ -36,6 +36,6 @@ php yii migrate --migrationPath=@uranum/location/migrations
 Вывести виджет в нужном месте:
 ```php
 echo  \uranum\location\widget\Location::widget([
-        'ipGeoComponent' => Yii::$app->ipgeo, // здесь ipgeo - название компонента himiklab\ipgeobase\IpGeoBase, указанного в секции components в config
-    ]);
+    // здесь можно настроить публичные свойства виджета, задав свои значения (загляните в исходный код)
+]);
 ```
