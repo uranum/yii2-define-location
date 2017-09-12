@@ -27,7 +27,9 @@ class LocationSetter extends Component
     public function __construct(Session $session, array $config = [])
     {
         parent::__construct($config);
-        $this->session = \Yii::$app->session;
+        if (Yii::$app instanceof \yii\web\Application) {
+            $this->session = \Yii::$app->session;
+        }
     }
 
     /**
