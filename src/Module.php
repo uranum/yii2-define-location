@@ -6,6 +6,7 @@ use uranum\location\components\LocationSetter;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
+use yii\base\InvalidConfigException;
 use yii\base\Object;
 use yii\web\User;
 

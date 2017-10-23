@@ -28,12 +28,12 @@ class InitApp implements BootstrapInterface
                 $app->session->set(Module::USER_CITY, $city);
             });
 
-            $container->set(LocationSetter::class);
-
             $container->setSingleton('LocationModule', function() use ($app) {
                 $module = Module::getInstance();
                 return $app->getModule($module->id);
             });
         }
+
+        $container->set(LocationSetter::className());
     }
 }
