@@ -45,7 +45,7 @@ class UserIp extends ActiveRecord
 			    'attributes' => [
 			    	ActiveRecord::EVENT_BEFORE_VALIDATE => 'ip'
 			    ],
-			    'value' => ip2long(Yii::$app->request->userIP)
+			    'value' => YII_ENV_TEST ? ip2long('127.0.0.1') : ip2long(Yii::$app->request->userIP)
 			],
 			'attributeUserId' => [
 			    'class' => AttributeBehavior::className(),
