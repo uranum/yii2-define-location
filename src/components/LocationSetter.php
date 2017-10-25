@@ -75,7 +75,7 @@ class LocationSetter extends Component
     {
         $this->module = Yii::$container->get('LocationModule');
         $result = $this->module->ipGeoComponent->getLocation(Yii::$app->request->userIP);
-        $city = ArrayHelper::getValue($result, 'city', 'Not set');
+        $city = ArrayHelper::getValue($result, 'city', 'Не определено');
         if (!$this->session->has(Module::USER_CITY) && !empty($city)) {
             $this->session->set(Module::USER_CITY, $city);
         }
