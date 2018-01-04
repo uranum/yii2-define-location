@@ -8,7 +8,7 @@
     "ip",
     "yii 2"
   ],
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "authors": [
     {
       "name": "Eugeny Emelyanov",
