@@ -1,7 +1,7 @@
 {
   "name": "uranum/yii2-define-location",
   "description": "Define the user location by ip or set it manually. For Yii2 app.",
-  "type": "yii2-extension",
+  "type": "library",
   "keywords": [
     "yii2",
     "location",
