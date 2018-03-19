@@ -14,7 +14,7 @@ use yii\web\AssetBundle;
 
 class LocationAsset extends AssetBundle
 {
-	public $sourcePath = '@uranum/location/widget/assets/';
+	public $sourcePath = '@vendor/uranum/yii2-define-location/src/widget/assets/';
 	public $css = [
 	    'css/styles.css'
 	];
