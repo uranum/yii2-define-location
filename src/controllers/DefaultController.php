@@ -24,9 +24,9 @@ class DefaultController extends Controller
         if (Yii::$app->request->isAjax) {
             try {
                 $this->component->saveCity($city);
-                echo 'good';
+                return 'good';
             } catch(\Exception $e) {
-                echo $e->getMessage();
+                return $e->getMessage();
             }
         }
     }
