@@ -15,7 +15,7 @@ class DefaultController extends Controller
     public function __construct($id, Module $module, array $config = [])
     {
         parent::__construct($id, $module, $config);
-        $this->component = Yii::$container->get(LocationSetter::className());
+        $this->component = Yii::$container->get(LocationSetter::class);
     }
 
     public function actionSendCity()

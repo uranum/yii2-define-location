@@ -38,6 +38,6 @@ class InitApp implements BootstrapInterface
             });
         }
 
-        $container->set(LocationSetter::className());
+        $container->set(LocationSetter::class);
     }
 }

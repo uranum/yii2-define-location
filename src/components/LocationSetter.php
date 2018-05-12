@@ -24,7 +24,7 @@ class LocationSetter extends Component
     private $session;
     private $module;
 
-    public function __construct(Session $session, array $config = [])
+    public function __construct(array $config = [])
     {
         parent::__construct($config);
         if (Yii::$app instanceof \yii\web\Application) {
