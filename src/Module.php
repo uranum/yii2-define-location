@@ -2,6 +2,7 @@
 
 namespace uranum\location;
 
+use InvalidArgumentException;
 use uranum\location\components\LocationSetter;
 use Yii;
 use yii\base\Application;
@@ -39,6 +40,7 @@ class Module extends \yii\base\Module
 	public $userModelClass;
 	public $userTableName;
     public $controllerNamespace = 'uranum\location\controllers';
+    public $vkSecretToken;
     /** @var \himiklab\ipgeobase\IpGeoBase */
     public $ipGeoComponent;
     private $locationSetter;
@@ -56,6 +58,14 @@ class Module extends \yii\base\Module
         $this->locationSetter = Yii::createObject(LocationSetter::className());
         $this->userTableName = call_user_func([$this->userModelClass, 'tableName']);
 
+        if (null === $this->vkSecretToken) {
+            throw new InvalidArgumentException("Set secret token in config!");
+        }
+    }
+
+    public function getSecretToken()
+    {
+        return $this->vkSecretToken;
     }
 
     private function initIpGeo()

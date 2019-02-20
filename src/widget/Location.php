@@ -51,12 +51,17 @@ class Location extends Widget
 	public function init()
 	{
 		parent::init();
-        $this->session = Yii::$app->session;
-        $this->setCity();
-		$this->sendUrl = Url::to(['/location/default/send-city']);
-		LocationAsset::register($this->getView());
-		$this->module = Yii::$container->get('LocationModule');
-		$this->token = $this->module->getSecretToken();
+		try {
+            $this->session = Yii::$app->session;
+            $this->setCity();
+            $this->sendUrl = Url::to(['/location/default/send-city']);
+            LocationAsset::register($this->getView());
+            $this->module = Yii::$container->get('LocationModule');
+            $this->token = $this->module->getSecretToken();
+		} catch(\Exception $e) {
+		    Yii::error('The location activation error');
+		}
+
 	}
 
     private function setCity()
