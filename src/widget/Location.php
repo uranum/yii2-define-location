@@ -35,6 +35,8 @@ class Location extends Widget
     public $cssPredefinedCities = 'ur-predefined-block';
 	/** @var Session $session */
 	private $session;
+	private $token;
+	private $module;
 
     const CITIES_SET = [
         'Москва',
@@ -53,6 +55,8 @@ class Location extends Widget
         $this->setCity();
 		$this->sendUrl = Url::to(['/location/default/send-city']);
 		LocationAsset::register($this->getView());
+		$this->module = Yii::$container->get('LocationModule');
+		$this->token = $this->module->getSecretToken();
 	}
 
     private function setCity()
@@ -128,6 +132,10 @@ class Location extends Widget
 		return Html::tag('span', Yii::t('location', $this->header));
 	}
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     private function renderAutocomplete()
 	{
 		return AutoComplete::widget([
@@ -143,6 +151,7 @@ class Location extends Widget
 						dataType : 'jsonp',
 						data : {
 							oauth:1,
+                            access_token: '{$this->token}',
 							v:'5,5',
 							need_all:5,
 							count:10,
@@ -171,7 +180,11 @@ class Location extends Widget
 
     private function renderSubmitButton()
 	{
-		return Html::button('Ok', ['id' => 'ur-submit-button', 'class' => $this->cssSubmitButton . ' disabled', 'onclick' => 'sendCity("' . $this->sendUrl . '")']);
+		return Html::button('Ok', [
+		    'id' => 'ur-submit-button',
+            'class' => $this->cssSubmitButton . ' disabled',
+            'onclick' => 'sendCity("' . $this->sendUrl . '")'
+        ]);
 	}
 
     private function renderPredefinedCities()

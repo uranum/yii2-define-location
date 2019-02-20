@@ -12,7 +12,8 @@ composer require uranum/yii2-define-location:"dev-master"
 'modules' => [
     'location' => [
         'class' => 'uranum\location\Module',
-        'userModelClass' => 'frontend\modules\user\models\User', // здесь указать класс модели User
+        'userModelClass' => 'frontend\modules\user\models\User', // здесь указать класс модели User,
+        'vkSecretToken' => 'your_secret_vk_token', // получить в настройках своего приложения в vk.com  https://vk.com/editapp?id=[your_id]&section=options
     ],
 ]
 ```
